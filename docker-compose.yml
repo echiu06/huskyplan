@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: huskyplan
+      POSTGRES_USER: huskyplan
+      POSTGRES_PASSWORD: huskyplan
+    ports:
+      - "5432:5432"
+    volumes:
+      - huskyplan_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U huskyplan -d huskyplan"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/huskyplan
+      DB_USER: huskyplan
+      DB_PASSWORD: huskyplan
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  huskyplan_data:
