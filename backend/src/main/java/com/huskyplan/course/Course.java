@@ -8,6 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "courses")
 public class Course {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,29 +22,76 @@ public class Course {
     @Column(nullable = false)
     private int credits;
 
-    @Column(length = 1600)
+    @Column(length = 3000)
     private String description;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<PrerequisiteGroup> prerequisiteGroups = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "course",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<PrerequisiteGroup> prerequisiteGroups =
+            new ArrayList<>();
 
     protected Course() {}
 
-    public Course(String code, String title, int credits, String description) {
+    public Course(
+            String code,
+            String title,
+            int credits,
+            String description
+    ) {
         this.code = code;
         this.title = title;
         this.credits = credits;
         this.description = description;
     }
 
-    public Long getId() { return id; }
-    public String getCode() { return code; }
-    public String getTitle() { return title; }
-    public int getCredits() { return credits; }
-    public String getDescription() { return description; }
-    public List<PrerequisiteGroup> getPrerequisiteGroups() { return prerequisiteGroups; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<PrerequisiteGroup> getPrerequisiteGroups() {
+        return prerequisiteGroups;
+    }
+
+    public void updateDetails(
+            String title,
+            int credits,
+            String description
+    ) {
+        this.title = title;
+        this.credits = credits;
+        this.description = description;
+    }
+
+    public void clearPrerequisites() {
+        prerequisiteGroups.clear();
+    }
 
     public void requireOneOf(String... courseCodes) {
-        prerequisiteGroups.add(new PrerequisiteGroup(this, Arrays.asList(courseCodes)));
+        prerequisiteGroups.add(
+                new PrerequisiteGroup(
+                        this,
+                        Arrays.asList(courseCodes)
+                )
+        );
     }
 }
