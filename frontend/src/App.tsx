@@ -66,10 +66,15 @@ export default function App() {
   const [year, setYear] =
     useState(2026);
 
-  const [completedText, setCompletedText] =
-    useState(
-      'CSE 121, CSE 122, CSE 123'
-    );
+  const [completedInput, setCompletedInput] =
+    useState(() => {
+      return (
+        localStorage.getItem(
+          'huskyplan.completedCourses'
+        ) ??
+        'CSE 121, CSE 122, CSE 123'
+      );
+    });
 
   const [selected, setSelected] =
     useState<Course | null>(null);
@@ -92,13 +97,20 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    localStorage.setItem(
+      'huskyplan.completedCourses',
+      completedInput
+    );
+  }, [completedInput]);
+
+  useEffect(() => {
     if (plan.length === 0) {
       setPlanValidation([]);
       return;
     }
 
     void refreshPlanValidation();
-  }, [plan, completedText]);
+  }, [plan, completedInput]);
 
   useEffect(() => {
     if (!error) {
@@ -137,6 +149,7 @@ export default function App() {
   async function loadCourses(q: string) {
     try {
       setError('');
+
       setCourses(
         await searchCourses(q)
       );
@@ -159,7 +172,7 @@ export default function App() {
     try {
       const completed =
         parseCompletedCourses(
-          completedText
+          completedInput
         );
 
       setPlanValidation(
@@ -174,6 +187,7 @@ export default function App() {
     e: FormEvent
   ) {
     e.preventDefault();
+
     await loadCourses(query);
   }
 
@@ -185,7 +199,7 @@ export default function App() {
 
       const completed =
         parseCompletedCourses(
-          completedText
+          completedInput
         );
 
       const validation =
@@ -226,6 +240,7 @@ export default function App() {
   ) {
     try {
       await deletePlanItem(id);
+
       await refreshPlan();
     } catch (e) {
       setError(message(e));
@@ -241,7 +256,7 @@ export default function App() {
 
       const completed =
         parseCompletedCourses(
-          completedText
+          completedInput
         );
 
       setCheck(
@@ -582,10 +597,10 @@ export default function App() {
 
             <textarea
               rows={4}
-              value={completedText}
+              value={completedInput}
               onChange={
                 e =>
-                  setCompletedText(
+                  setCompletedInput(
                     e.target.value
                   )
               }
