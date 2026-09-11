@@ -88,6 +88,9 @@ export default function App() {
   const [detailsLoading, setDetailsLoading] =
     useState(false);
 
+  const [searchLoading, setSearchLoading] =
+    useState(false);
+
   const [error, setError] =
     useState('');
 
@@ -148,6 +151,7 @@ export default function App() {
 
   async function loadCourses(q: string) {
     try {
+      setSearchLoading(true);
       setError('');
 
       setCourses(
@@ -155,6 +159,8 @@ export default function App() {
       );
     } catch (e) {
       setError(message(e));
+    } finally {
+      setSearchLoading(false);
     }
   }
 
@@ -451,11 +457,23 @@ export default function App() {
               placeholder="Search CSE 331, algorithms..."
             />
 
-            <button>
-              Search
+            <button
+              disabled={searchLoading}
+            >
+              {
+                searchLoading
+                  ? 'Loading...'
+                  : 'Search'
+              }
             </button>
 
           </form>
+
+          {searchLoading && (
+            <p className="muted">
+              Waking up server and loading courses...
+            </p>
+          )}
 
           <div className="plan-controls">
 
