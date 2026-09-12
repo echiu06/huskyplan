@@ -9,6 +9,7 @@ import {
   addPlanItem,
   checkPrerequisites,
   deletePlanItem,
+  findCoursePath,
   getCourse,
   getPlan,
   searchCourses,
@@ -19,6 +20,7 @@ import {
 import type {
   Course,
   CourseDetails,
+  CoursePathResponse,
   PlanItem,
   PlanValidationItem,
   PrerequisiteCheck
@@ -49,7 +51,8 @@ function parseCompletedCourses(
 }
 
 export default function App() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] =
+    useState('');
 
   const [courses, setCourses] =
     useState<Course[]>([]);
@@ -57,7 +60,10 @@ export default function App() {
   const [plan, setPlan] =
     useState<PlanItem[]>([]);
 
-  const [planValidation, setPlanValidation] =
+  const [
+    planValidation,
+    setPlanValidation
+  ] =
     useState<PlanValidationItem[]>([]);
 
   const [quarter, setQuarter] =
@@ -66,29 +72,58 @@ export default function App() {
   const [year, setYear] =
     useState(2026);
 
-  const [completedInput, setCompletedInput] =
-    useState(() => {
-      return (
-        localStorage.getItem(
-          'huskyplan.completedCourses'
-        ) ??
-        'CSE 121, CSE 122, CSE 123'
-      );
-    });
+  const [
+    completedInput,
+    setCompletedInput
+  ] = useState(() => {
+    return (
+      localStorage.getItem(
+        'huskyplan.completedCourses'
+      ) ??
+      'CSE 121, CSE 122, CSE 123'
+    );
+  });
 
   const [selected, setSelected] =
     useState<Course | null>(null);
 
   const [check, setCheck] =
-    useState<PrerequisiteCheck | null>(null);
+    useState<PrerequisiteCheck | null>(
+      null
+    );
 
   const [details, setDetails] =
-    useState<CourseDetails | null>(null);
+    useState<CourseDetails | null>(
+      null
+    );
 
-  const [detailsLoading, setDetailsLoading] =
+  const [
+    detailsLoading,
+    setDetailsLoading
+  ] =
     useState(false);
 
-  const [searchLoading, setSearchLoading] =
+  const [
+    searchLoading,
+    setSearchLoading
+  ] =
+    useState(false);
+
+  const [pathTarget, setPathTarget] =
+    useState('');
+
+  const [
+    coursePath,
+    setCoursePath
+  ] =
+    useState<CoursePathResponse | null>(
+      null
+    );
+
+  const [
+    pathLoading,
+    setPathLoading
+  ] =
     useState(false);
 
   const [error, setError] =
@@ -120,9 +155,10 @@ export default function App() {
       return;
     }
 
-    const timer = window.setTimeout(() => {
-      setError('');
-    }, 4000);
+    const timer =
+      window.setTimeout(() => {
+        setError('');
+      }, 4000);
 
     return () => {
       window.clearTimeout(timer);
@@ -130,7 +166,9 @@ export default function App() {
   }, [error]);
 
   useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
+    function onKeyDown(
+      e: KeyboardEvent
+    ) {
       if (e.key === 'Escape') {
         setDetails(null);
       }
@@ -149,7 +187,9 @@ export default function App() {
     };
   }, []);
 
-  async function loadCourses(q: string) {
+  async function loadCourses(
+    q: string
+  ) {
     try {
       setSearchLoading(true);
       setError('');
@@ -182,7 +222,9 @@ export default function App() {
         );
 
       setPlanValidation(
-        await validatePlan(completed)
+        await validatePlan(
+          completed
+        )
       );
     } catch (e) {
       setError(message(e));
@@ -219,7 +261,9 @@ export default function App() {
       if (!validation.eligible) {
         const missing =
           validation.missing
-            .map(formatRequirement)
+            .map(
+              formatRequirement
+            )
             .join(' AND ');
 
         setError(
@@ -285,7 +329,9 @@ export default function App() {
       setError('');
 
       const result =
-        await getCourse(course.code);
+        await getCourse(
+          course.code
+        );
 
       setDetails(result);
     } catch (e) {
@@ -301,6 +347,43 @@ export default function App() {
     }
 
     await onAdd(details);
+  }
+
+  async function onFindPath(
+    e: FormEvent
+  ) {
+    e.preventDefault();
+
+    if (!pathTarget.trim()) {
+      setError(
+        'Enter a target course first.'
+      );
+      return;
+    }
+
+    try {
+      setPathLoading(true);
+      setError('');
+      setCoursePath(null);
+
+      const completed =
+        parseCompletedCourses(
+          completedInput
+        );
+
+      const result =
+        await findCoursePath(
+          pathTarget,
+          completed
+        );
+
+      setCoursePath(result);
+    } catch (e) {
+      setError(message(e));
+      setCoursePath(null);
+    } finally {
+      setPathLoading(false);
+    }
   }
 
   const validationById =
@@ -386,9 +469,10 @@ export default function App() {
           </h1>
 
           <p>
-            Build a multi-quarter plan
-            and check prerequisites
-            before adding your next class.
+            Build a multi-quarter plan,
+            validate prerequisites, and
+            find a path to the courses
+            you want to take.
           </p>
 
         </div>
@@ -420,7 +504,10 @@ export default function App() {
 
           <button
             className="error-toast-close"
-            onClick={() => setError('')}
+            onClick={
+              () =>
+                setError('')
+            }
             aria-label="Close notification"
           >
             ×
@@ -471,7 +558,8 @@ export default function App() {
 
           {searchLoading && (
             <p className="muted">
-              Waking up server and loading courses...
+              Waking up server and
+              loading courses...
             </p>
           )}
 
@@ -596,6 +684,168 @@ export default function App() {
         </section>
 
         <aside className="side-column">
+
+          <section className="panel path-panel">
+
+            <span className="section-kicker">
+              Path planner
+            </span>
+
+            <h2>
+              Find your path
+            </h2>
+
+            <p className="muted">
+              Enter a goal course and
+              HuskyPlan will work backward
+              through its prerequisites
+              using your completed courses.
+            </p>
+
+            <form
+              className="path-form"
+              onSubmit={onFindPath}
+            >
+
+              <input
+                value={pathTarget}
+                onChange={
+                  e =>
+                    setPathTarget(
+                      e.target.value
+                    )
+                }
+                placeholder="CSE 451"
+                aria-label="Target course"
+              />
+
+              <button
+                disabled={pathLoading}
+              >
+                {
+                  pathLoading
+                    ? 'Finding...'
+                    : 'Find path'
+                }
+              </button>
+
+            </form>
+
+            {pathLoading && (
+              <p className="muted path-loading">
+                Building prerequisite path...
+              </p>
+            )}
+
+            {coursePath && (
+              <div className="path-result">
+
+                <div className="path-heading">
+                  Goal:{' '}
+                  <strong>
+                    {
+                      coursePath.targetCourse
+                    }
+                  </strong>
+                </div>
+
+                {coursePath.alreadyCompleted ? (
+
+                  <div className="check-result success">
+                    <strong>
+                      ✓ Goal already completed
+                    </strong>
+
+                    You already have{' '}
+                    {
+                      coursePath.targetCourse
+                    }{' '}
+                    in your completed courses.
+                  </div>
+
+                ) : (
+
+                  <>
+
+                    <div className="path-summary">
+                      Recommended course sequence
+                    </div>
+
+                    <div className="path-steps">
+
+                      {
+                        coursePath
+                          .recommendedPath
+                          .map(
+                            (
+                              course,
+                              index
+                            ) => {
+
+                              const isGoal =
+                                index ===
+                                coursePath
+                                  .recommendedPath
+                                  .length -
+                                  1;
+
+                              return (
+                                <div
+                                  className="path-step-wrapper"
+                                  key={
+                                    `${course}-${index}`
+                                  }
+                                >
+
+                                  <div
+                                    className={
+                                      `path-step ${
+                                        isGoal
+                                          ? 'path-goal'
+                                          : ''
+                                      }`
+                                    }
+                                  >
+
+                                    <div className="path-number">
+                                      {
+                                        index + 1
+                                      }
+                                    </div>
+
+                                    <strong>
+                                      {course}
+                                    </strong>
+
+                                    {isGoal && (
+                                      <span className="goal-badge">
+                                        Goal
+                                      </span>
+                                    )}
+
+                                  </div>
+
+                                  {!isGoal && (
+                                    <div className="path-arrow">
+                                      ↓
+                                    </div>
+                                  )}
+
+                                </div>
+                              );
+                            }
+                          )
+                      }
+
+                    </div>
+
+                  </>
+                )}
+
+              </div>
+            )}
+
+          </section>
 
           <section className="panel">
 
@@ -779,6 +1029,9 @@ export default function App() {
                                     void onDelete(
                                       item.id
                                     )
+                                }
+                                aria-label={
+                                  `Remove ${item.courseCode}`
                                 }
                               >
                                 ×

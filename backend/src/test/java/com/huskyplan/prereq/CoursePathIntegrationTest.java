@@ -25,8 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @AutoConfigureMockMvc
-class PlanIntegrationTest {
-        
+class CoursePathIntegrationTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -54,7 +54,6 @@ class PlanIntegrationTest {
                 "CSE 311",
                 "Foundations of Computing I"
         );
-
         c311.requireOneOf("CSE 123");
         c311.requireOneOf("MATH 126");
 
@@ -62,28 +61,24 @@ class PlanIntegrationTest {
                 "CSE 332",
                 "Data Structures and Parallelism"
         );
-
         c332.requireOneOf("CSE 311");
 
         Course c351 = course(
                 "CSE 351",
                 "The Hardware/Software Interface"
         );
-
         c351.requireOneOf("CSE 123");
 
         Course c333 = course(
                 "CSE 333",
                 "Systems Programming"
         );
-
         c333.requireOneOf("CSE 351");
 
         Course c451 = course(
                 "CSE 451",
                 "Introduction to Operating Systems"
         );
-
         c451.requireOneOf("CSE 332");
         c451.requireOneOf("CSE 333");
         c451.requireOneOf("CSE 351");

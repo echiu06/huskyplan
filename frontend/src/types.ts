@@ -41,3 +41,10 @@ export type AddValidationResult = {
   eligible: boolean;
   missing: RequirementGroup[];
 };
+
+export type CoursePathResponse = {
+  targetCourse: string;
+  alreadyCompleted: boolean;
+  completedCourses: string[];
+  recommendedPath: string[];
+};

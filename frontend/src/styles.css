@@ -32,6 +32,11 @@ button {
   color: #fff;
 }
 
+button:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
 .app-shell {
   min-height: 100vh;
 }
@@ -93,6 +98,7 @@ button {
   align-self: start;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  padding-right: 2px;
 }
 
 .panel {
@@ -225,6 +231,120 @@ textarea:focus {
   margin-bottom: 6px;
 }
 
+/* PATH PLANNER */
+
+.path-panel {
+  overflow: hidden;
+}
+
+.path-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.path-form input {
+  min-width: 0;
+}
+
+.path-loading {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.path-result {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #ebe7f2;
+}
+
+.path-heading {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.path-summary {
+  margin-bottom: 12px;
+  color: #756e80;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.path-steps {
+  display: grid;
+  gap: 0;
+}
+
+.path-step-wrapper {
+  display: grid;
+}
+
+.path-step {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid #e1d9ec;
+  border-radius: 13px;
+  background: #f8f6fb;
+}
+
+.path-step strong {
+  color: #312843;
+  font-size: 14px;
+}
+
+.path-number {
+  width: 27px;
+  height: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eee9f6;
+  color: #4b2e83;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.path-goal {
+  background: #f2edf9;
+  border: 2px solid #4b2e83;
+}
+
+.path-goal .path-number {
+  background: #4b2e83;
+  color: #fff;
+}
+
+.goal-badge {
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: #4b2e83;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.path-arrow {
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8b70b8;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+/* SAVED PLAN */
+
 .quarter-card {
   padding: 13px;
   border-radius: 14px;
@@ -259,6 +379,8 @@ textarea:focus {
   color: #796d89;
   font-size: 20px;
 }
+
+/* ERROR TOAST */
 
 .error-toast {
   position: fixed;
@@ -321,6 +443,8 @@ textarea:focus {
 .error-toast-close:hover {
   color: #3c3341;
 }
+
+/* COURSE DETAILS MODAL */
 
 .modal-backdrop {
   position: fixed;
@@ -497,6 +621,14 @@ footer {
 
   .course-actions {
     flex-wrap: wrap;
+  }
+
+  .path-form {
+    grid-template-columns: 1fr;
+  }
+
+  .path-form button {
+    width: 100%;
   }
 
   .error-toast {

@@ -2,6 +2,7 @@ import type {
   AddValidationResult,
   Course,
   CourseDetails,
+  CoursePathResponse,
   PlanItem,
   PlanValidationItem,
   PrerequisiteCheck
@@ -28,7 +29,6 @@ async function request<T>(
   );
 
   if (!response.ok) {
-
     const text = await response.text();
 
     let errorMessage =
@@ -105,7 +105,6 @@ export function addPlanItem(
     '/plan',
     {
       method: 'POST',
-
       body: JSON.stringify({
         courseCode,
         quarter,
@@ -136,7 +135,6 @@ export function checkPrerequisites(
     '/prerequisites/check',
     {
       method: 'POST',
-
       body: JSON.stringify({
         courseCode,
         completedCourses
@@ -153,7 +151,6 @@ export function validatePlan(
     '/plan/validate',
     {
       method: 'POST',
-
       body: JSON.stringify({
         completedCourses
       })
@@ -172,11 +169,27 @@ export function validateAdd(
     '/plan/validate-add',
     {
       method: 'POST',
-
       body: JSON.stringify({
         courseCode,
         quarter,
         year,
+        completedCourses
+      })
+    }
+  );
+}
+
+export function findCoursePath(
+  targetCourse: string,
+  completedCourses: string[]
+): Promise<CoursePathResponse> {
+
+  return request<CoursePathResponse>(
+    '/path',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        targetCourse,
         completedCourses
       })
     }
